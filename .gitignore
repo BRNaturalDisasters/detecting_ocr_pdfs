@@ -5,3 +5,4 @@
 *.json
 *.pdf
 /aux_data
+/logs

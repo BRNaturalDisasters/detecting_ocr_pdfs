@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os, logging, json, tqdm
 import pandas as pd
 
-logging.basicConfig(filename="log_box_tools.log",
+logging.basicConfig(filename="./logs/log_box_tools.log",
                     filemode="a",
                     format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
                     datefmt="%H:%M:%S",
@@ -114,12 +114,12 @@ def create_stratified_sample(pdf_ids_file: dict, proportion=0.3) -> tuple:
     return pdf_ids_df, sample_df
 
 
-def download_pdfs(sample_pdfs: dict, folder_path: str) -> None:
+def download_pdfs(sample_pdfs: dict, folder_path: str, initial_folder: int) -> None:
     """
     Downloading pdfs on specified folder
     """
     
-    for folder in tqdm.tqdm(list(sample_pdfs.keys())): # reading ids of current folder
+    for folder in tqdm.tqdm(list(sample_pdfs.keys())[initial_folder:]): # reading ids of current folder
         for file_id in tqdm.tqdm(sample_pdfs[folder]): 
             
             file_content = client.file(file_id).content() # downloading pdf data
@@ -137,12 +137,13 @@ if __name__ == "__main__":
     folder_url = parameters["folder_url"]
     pdf_ids_file = parameters["pdf_ids_file"]
     pdf_download_folder = parameters["pdf_download_folder"]
+    initial_index = parameters["initial_index"]
 
     client = box_client_initializer()
 
     # storing and downloading all available pdfs
     all_pdf_ids = obtain_store_pdfs(client, folder_url, pdf_ids_file)
-    download_pdfs(all_pdf_ids, pdf_download_folder) 
+    download_pdfs(all_pdf_ids, pdf_download_folder, initial_index) 
 
     # given the universe size (~8000 pdfs), the following snippets are optional 
     # _, sample_pdf_df = create_stratified_sample(all_pdf_ids) # stratified sampling of pdf ids
