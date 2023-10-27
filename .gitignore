@@ -1,0 +1,7 @@
+.env
+*.xlsx
+*.csv
+*.log
+*.json
+*.pdf
+/aux_data
