@@ -1,6 +1,6 @@
 from boxsdk import Client, OAuth2
 from dotenv import load_dotenv
-import os, logging, json
+import os, logging, json, tqdm
 import pandas as pd
 
 logging.basicConfig(filename="log_box_tools.log",
@@ -119,8 +119,8 @@ def download_pdfs(sample_pdfs: dict, folder_path: str) -> None:
     Downloading pdfs on specified folder
     """
     
-    for folder in list(sample_pdfs.keys()): # reading ids of current folder
-        for file_id in sample_pdfs[folder]: 
+    for folder in tqdm.tqdm(list(sample_pdfs.keys())): # reading ids of current folder
+        for file_id in tqdm.tqdm(sample_pdfs[folder]): 
             
             file_content = client.file(file_id).content() # downloading pdf data
             
