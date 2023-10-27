@@ -107,31 +107,38 @@ def detect_readable_pages_pdfs(pdf_tuple: str) -> dict:
 
     logging.info(f"started readability detection for file {pdf_file}")
 
+    output = { # defining output
+              "path": pdf_file, 
+              "index": pdf_index
+            }
+
     readable_pages = []
     non_readable_pages = []
     page_num = 1
 
     with open(pdf_file, "rb") as infile: # starting detection of readable pages
+        try:
+            for page in PDFPage.get_pages(infile): # iterating through pdf pages
 
-        for page in PDFPage.get_pages(infile): # iterating through pdf pages
+                if "Font" in page.resources.keys(): # detecting readable pages
+                    readable_pages.append(page_num)
+                
+                else: # detecting non readable pages
+                    non_readable_pages.append(page_num)
+                
+                page_num += 1
 
-            if "Font" in page.resources.keys(): # detecting readable pages
-                readable_pages.append(page_num)
-            
-            else: # detecting non readable pages
-                non_readable_pages.append(page_num)
-            
-            page_num += 1
+            num_pages = page_num - 1 
+            output["num_pages"] = num_pages,
+            output["readable_pages"] = len(readable_pages),
+            output["non_readable_pages"] = len(non_readable_pages),
+            output["percentage_readable"] = round(((num_pages - len(non_readable_pages))/num_pages)*100, 2)
 
-    num_pages = page_num - 1 
-    output = {
-              "path": pdf_file, 
-              "index": pdf_index,
-              "num_pages": num_pages,
-              "readable_pages": len(readable_pages),
-              "non_readable_pages": len(non_readable_pages),
-              "percentage_readable": round(((num_pages - len(non_readable_pages))/num_pages)*100, 2)
-             }
+        except:
+            output["num_pages"] = "-"
+            output["readable_pages"] = "-"
+            output["non_readable_pages"] = "-"
+            output["percentage_readable"] = "-"
 
     logging.info(f"completed readability detection for file {pdf_file}")
     return output
